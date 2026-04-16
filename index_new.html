@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cobra Chess - Professional AI Chess Platform</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="top-bar">
+        <div class="top-left">
+            <svg class="logo-icon" width="36" height="36" viewBox="0 0 36 36">
+                <path d="M18 2 L27 14 L25 18 L21 14 L21 21 Q21 27 15 27 Q9 27 9 21 L9 14 L5 18 L3 14 Z" fill="currentColor"/>
+            </svg>
+            <div class="logo-text">
+                <h1>COBRA CHESS</h1>
+                <span class="version">v2.0</span>
+            </div>
+        </div>
+        
+        <div class="top-right">
+            <button id="newGameBtn" class="btn btn-primary" title="Start a new game">
+                <span>⟳</span> New Game
+            </button>
+            <button id="flipBoardBtn" class="btn btn-secondary" title="Flip the board">
+                <span>⇅</span> Flip
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar Panel -->
+        <aside class="panel-left">
+            <!-- Bot Section -->
+            <div class="card">
+                <h2>🤖 Bot Configuration</h2>
+                
+                <div class="setting">
+                    <label for="engineType">Engine</label>
+                    <select id="engineType" class="select-box">
+                        <option value="hybrid" selected>🔥 Hybrid (Stockfish)</option>
+                        <option value="stockfish">⚙️ Stockfish NNUE</option>
+                        <option value="transformer">🧠 Transformer</option>
+                    </select>
+                </div>
+
+                <div class="setting">
+                    <label for="difficulty">Difficulty Level</label>
+                    <select id="difficulty" class="select-box">
+                        <option value="1">1 - Beginner</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5" selected>5 - Intermediate</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8 - Advanced</option>
+                        <option value="9">9</option>
+                        <option value="10">10 - Master</option>
+                    </select>
+                </div>
+
+                <div class="setting">
+                    <label for="playerColor">Play as</label>
+                    <select id="playerColor" class="select-box">
+                        <option value="white" selected>⚪ White</option>
+                        <option value="black">⚫ Black</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Game Settings -->
+            <div class="card">
+                <h2>⚙️ Settings</h2>
+                <div class="features-list">
+                    <label class="feature-toggle">
+                        <input type="checkbox" id="soundToggle" checked>
+                        <span>🔊 Sound Effects</span>
+                    </label>
+                    <label class="feature-toggle">
+                        <input type="checkbox" id="highlightToggle" checked>
+                        <span>✨ Highlight Moves</span>
+                    </label>
+                    <label class="feature-toggle">
+                        <input type="checkbox" id="animationToggle" checked>
+                        <span>🎬 Animations</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Evaluation Bar -->
+            <div class="card">
+                <h2>📊 Evaluation</h2>
+                <div class="eval-display">
+                    <div class="eval-bar-wrapper">
+                        <div class="eval-fill" style="width: 50%"></div>
+                    </div>
+                    <div class="eval-info">
+                        <span class="eval-label">White</span>
+                        <span id="evalScore" class="eval-score">0.0</span>
+                        <span class="eval-label">Black</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Move History -->
+            <div class="card">
+                <h2>📋 Move History</h2>
+                <div id="moveHistory" class="move-history"></div>
+            </div>
+        </aside>
+
+        <!-- Center - Chess Board -->
+        <main class="board-section">
+            <!-- Top Player Info (AI) -->
+            <div class="player-info player-top">
+                <div class="player-avatar">🐍</div>
+                <div class="player-details">
+                    <div class="player-name">Cobra AI</div>
+                    <div id="capturedByWhite" class="captured-pieces"></div>
+                </div>
+                <div class="player-rating">
+                    <span id="aiDifficulty">Lvl 5</span>
+                </div>
+            </div>
+
+            <!-- Drawing Layer & Board -->
+            <div class="board-frame">
+                <svg id="drawingLayer" class="drawing-layer">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#baca44" />
+                        </marker>
+                    </defs>
+                </svg>
+                <div id="chessboard" class="chessboard"></div>
+            </div>
+
+            <!-- Bottom Player Info (Human) -->
+            <div class="player-info player-bottom">
+                <div class="player-avatar">👤</div>
+                <div class="player-details">
+                    <div class="player-name">You</div>
+                    <div id="capturedByBlack" class="captured-pieces"></div>
+                </div>
+                <div class="player-rating">
+                    <span>Human</span>
+                </div>
+            </div>
+
+            <!-- Board Controls -->
+            <div class="board-controls">
+                <button id="undoBtn" class="btn btn-control" title="Undo last move">
+                    <span>↶</span> Undo
+                </button>
+                <button id="hintBtn" class="btn btn-control" title="Get a hint">
+                    <span>💡</span> Hint
+                </button>
+                <button id="clearDrawBtn" class="btn btn-control" title="Clear annotations">
+                    <span>✕</span> Clear
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar Panel -->
+        <aside class="panel-right">
+            <!-- Game Status -->
+            <div class="card">
+                <h2>📈 Game Status</h2>
+                <div id="gameStatus" class="status-display">White to move</div>
+                <div class="game-info">
+                    <div class="info-row">
+                        <span>Turn</span>
+                        <span id="turnNumber" class="info-value">1</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Backend</span>
+                        <span id="backendStatus" class="info-value status-checking">Checking...</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Timer</span>
+                        <span id="gameTimer" class="info-value">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Move Quality Legend -->
+            <div class="card">
+                <h2>♗ Move Classification</h2>
+                <div class="legend-list">
+                    <div class="legend-item">
+                        <span class="legend-color best"></span>
+                        <span>Best Move</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color good"></span>
+                        <span>Good Move</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color inaccuracy"></span>
+                        <span>Inaccuracy</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color mistake"></span>
+                        <span>Mistake</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color blunder"></span>
+                        <span>Blunder</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help -->
+            <div class="card">
+                <h2>ℹ️ How to Play</h2>
+                <div class="help-text">
+                    <p><strong>Click</strong> a piece to select it</p>
+                    <p><strong>Click</strong> a square to move</p>
+                    <p><strong>Hint</strong> shows evaluation</p>
+                    <p><strong>Undo</strong> takes back moves</p>
+                    <p><strong>Flip</strong> rotates the board</p>
+                </div>
+            </div>
+
+            <!-- About -->
+            <div class="card">
+                <h2>🐍 About Cobra</h2>
+                <div class="about-text">
+                    <p>Cobra Chess combines transformer neural networks with Stockfish NNUE for superior chess strength.</p>
+                    <p><small>Backend: Flask + PyTorch<br>Frontend: HTML5 + chess.js</small></p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="./script.js"></script>
+</body>
+</html>
