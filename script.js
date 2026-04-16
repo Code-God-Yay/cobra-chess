@@ -311,9 +311,11 @@ class ChessUI {
         
         // Game state
         this.playerColor = 'white';
-        this.botEnabled = true;
+        this.gameMode = 'player'; // 'player' or 'bot'
+        this.selectedBot = 'cobra'; // 'cobra' or 'stockfish'
+        this.botEnabled = false; // Will be true if gameMode is 'bot'
         this.difficulty = 5;
-        this.useStockfish = true;
+        this.useStockfish = false; // Will be true if selectedBot is 'stockfish'
         this.aiThinking = false;
         this.selectedSquare = null;
         this.highlightedSquares = new Set();
@@ -349,7 +351,7 @@ class ChessUI {
     }
 
     setupDOM() {
-        // This assumes the HTML structure from index.html is present
+        // This assumes the HTML structure from index_new.html is present
         this.boardEl = document.getElementById('chessboard');
         this.statusEl = document.getElementById('gameStatus');
         this.evalScoreEl = document.getElementById('evalScore');
@@ -359,6 +361,15 @@ class ChessUI {
         this.gameTimerEl = document.getElementById('gameTimer');
         this.backendStatusEl = document.getElementById('backendStatus');
 
+        // Game mode buttons
+        this.modePlayerBtn = document.getElementById('modePlayer');
+        this.modeBotBtn = document.getElementById('modeBot');
+
+        // Bot configuration
+        this.botConfigCard = document.getElementById('botConfigCard');
+        this.botCobraBtn = document.getElementById('botCobra');
+        this.botStockfishBtn = document.getElementById('botStockfish');
+
         // Game controls
         this.newGameBtn = document.getElementById('newGameBtn');
         this.undoBtn = document.getElementById('undoBtn');
@@ -366,7 +377,6 @@ class ChessUI {
         this.flipBoardBtn = document.getElementById('flipBoardBtn');
 
         // Settings
-        this.engineTypeSelect = document.getElementById('engineType');
         this.difficultySelect = document.getElementById('difficulty');
         this.playerColorSelect = document.getElementById('playerColor');
         this.soundToggle = document.getElementById('soundToggle');
@@ -376,6 +386,22 @@ class ChessUI {
         // Board clicks
         if (this.boardEl) {
             this.boardEl.addEventListener('click', (e) => this.handleBoardClick(e));
+        }
+
+        // Game mode selection
+        if (this.modePlayerBtn) {
+            this.modePlayerBtn.addEventListener('click', () => this.setGameMode('player'));
+        }
+        if (this.modeBotBtn) {
+            this.modeBotBtn.addEventListener('click', () => this.setGameMode('bot'));
+        }
+
+        // Bot selection
+        if (this.botCobraBtn) {
+            this.botCobraBtn.addEventListener('click', () => this.setSelectedBot('cobra'));
+        }
+        if (this.botStockfishBtn) {
+            this.botStockfishBtn.addEventListener('click', () => this.setSelectedBot('stockfish'));
         }
 
         // Button clicks
@@ -388,7 +414,7 @@ class ChessUI {
         if (this.playerColorSelect) {
             this.playerColorSelect.addEventListener('change', (e) => {
                 this.playerColor = e.target.value;
-                this.flipBoard();
+                this.render();
             });
         }
 
@@ -398,17 +424,45 @@ class ChessUI {
             });
         }
 
-        if (this.engineTypeSelect) {
-            this.engineTypeSelect.addEventListener('change', (e) => {
-                this.useStockfish = e.target.value !== 'transformer';
-            });
-        }
-
         if (this.soundToggle) {
             this.soundToggle.addEventListener('change', (e) => {
                 this.sounds.enabled = e.target.checked;
             });
         }
+    }
+
+    setGameMode(mode) {
+        this.gameMode = mode;
+        this.botEnabled = (mode === 'bot');
+
+        // Update button states
+        if (this.modePlayerBtn && this.modeBotBtn) {
+            this.modePlayerBtn.classList.toggle('mode-btn-active', mode === 'player');
+            this.modeBotBtn.classList.toggle('mode-btn-active', mode === 'bot');
+        }
+
+        // Show/hide bot config card
+        if (this.botConfigCard) {
+            this.botConfigCard.style.display = (mode === 'bot') ? 'block' : 'none';
+        }
+
+        // Reset game when mode changes
+        this.newGame();
+        this.render();
+    }
+
+    setSelectedBot(bot) {
+        this.selectedBot = bot;
+        this.useStockfish = (bot === 'stockfish');
+
+        // Update button states
+        if (this.botCobraBtn && this.botStockfishBtn) {
+            this.botCobraBtn.classList.toggle('bot-btn-active', bot === 'cobra');
+            this.botStockfishBtn.classList.toggle('bot-btn-active', bot === 'stockfish');
+        }
+
+        // Reset game when bot changes
+        this.newGame();
     }
 
     handleBoardClick(e) {
@@ -483,7 +537,7 @@ class ChessUI {
         await this.updateEvaluation();
         this.render();
 
-        // AI move
+        // AI move (only in bot mode)
         if (this.botEnabled && this.game.getCurrentTurn() !== this.playerColor && !this.game.gameOver) {
             await this.makeAIMove();
         }
@@ -548,7 +602,9 @@ class ChessUI {
     undoLastMove() {
         if (this.game.moveHistory.length === 0) return;
         this.game.undoMove();
-        if (this.game.moveHistory.length > 0) {
+        
+        // In bot mode, also undo AI's move
+        if (this.botEnabled && this.game.moveHistory.length > 0) {
             this.game.undoMove();
         }
         this.render();

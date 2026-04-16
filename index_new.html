@@ -36,17 +36,32 @@
     <div class="main-container">
         <!-- Left Sidebar Panel -->
         <aside class="panel-left">
-            <!-- Bot Section -->
+            <!-- Game Mode Selection -->
             <div class="card">
-                <h2>🤖 Bot Configuration</h2>
+                <h2>🎮 Game Mode</h2>
+                <div class="game-mode-selector">
+                    <button id="modePlayer" class="mode-btn mode-btn-active" data-mode="player">
+                        <span>👥</span> VS PLAYER
+                    </button>
+                    <button id="modeBot" class="mode-btn" data-mode="bot">
+                        <span>🤖</span> VS BOT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bot Configuration (shown only in bot mode) -->
+            <div class="card" id="botConfigCard" style="display: none;">
+                <h2>🤖 Select Bot</h2>
                 
-                <div class="setting">
-                    <label for="engineType">Engine</label>
-                    <select id="engineType" class="select-box">
-                        <option value="hybrid" selected>🔥 Hybrid (Stockfish)</option>
-                        <option value="stockfish">⚙️ Stockfish NNUE</option>
-                        <option value="transformer">🧠 Transformer</option>
-                    </select>
+                <div class="bot-selector">
+                    <button id="botCobra" class="bot-btn bot-btn-active" data-bot="cobra">
+                        <span>🐍</span> VS COBRA
+                        <small>Transformer</small>
+                    </button>
+                    <button id="botStockfish" class="bot-btn" data-bot="stockfish">
+                        <span>⚙️</span> VS STOCKFISH
+                        <small>NNUE Engine</small>
+                    </button>
                 </div>
 
                 <div class="setting">
