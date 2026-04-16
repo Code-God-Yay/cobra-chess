@@ -1,0 +1,21 @@
+# Ignore the virtual environment
+.venv/
+venv/
+env/
+
+# Ignore Python specific files
+__pycache__/
+*.py[cod]
+
+# Ignore Model Weights (Binaries)
+models/
+*.pt
+*.pth
+
+# Ignore Build & System files
+dist/
+build/
+.DS_Store
+
+# Ignore third-party libraries if you have any
+node_modules/
