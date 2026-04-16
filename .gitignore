@@ -1,0 +1,20 @@
+# Virtual Environment
+venv.venv/
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Neural Network Weights (Too large for standard Git)
+models/*.pt
+models/*.pth
+
+# Engine Logs
+stockfish.log
+*.log
+
+# System Files
+.DS_Store
