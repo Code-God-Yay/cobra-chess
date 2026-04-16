@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cobra Chess - Professional AI Chess Engine</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="top-left">
+            <svg class="logo-icon" width="36" height="36" viewBox="0 0 36 36">
+                <path d="M18 2 L27 14 L25 18 L21 14 L21 21 Q21 27 15 27 Q9 27 9 21 L9 14 L5 18 L3 14 Z" fill="currentColor"/>
+            </svg>
+            <div class="logo-text">
+                <h1>COBRA CHESS</h1>
+                <span class="version">v2.0</span>
+            </div>
+        </div>
+        
+        <div class="top-right">
+            <button id="newGameBtn" class="btn btn-primary">
+                <span>⟳</span> New Game
+            </button>
+            <button id="flipBoardBtn" class="btn btn-secondary">
+                <span>⇅</span> Flip
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Left Panel -->
+        <aside class="panel-left">
+            <div class="card">
+                <h2>Game Settings</h2>
+                <div class="setting">
+                    <label>AI Engine</label>
+                    <select id="engineType" class="select-box">
+                        <option value="hybrid" selected>🔥 Hybrid Engine</option>
+                        <option value="neural">🧠 Neural Network</option>
+                        <option value="markov">📊 Markov Chain</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label>Difficulty</label>
+                    <select id="difficulty" class="select-box">
+                        <option value="1">🟢 Easy</option>
+                        <option value="2">🟡 Medium</option>
+                        <option value="3" selected>🟠 Hard</option>
+                        <option value="4">🔴 Expert</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label>Play As</label>
+                    <select id="playerColor" class="select-box">
+                        <option value="white" selected>⚪ White</option>
+                        <option value="black">⚫ Black</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Evaluation</h2>
+                <div class="eval-display">
+                    <div class="eval-bar-wrapper">
+                        <div class="eval-bar">
+                            <div id="evalFill" class="eval-fill"></div>
+                            <div class="eval-line"></div>
+                        </div>
+                    </div>
+                    <div class="eval-info">
+                        <span class="eval-label">White</span>
+                        <span id="evalScore" class="eval-score">0.0</span>
+                        <span class="eval-label">Black</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Move History</h2>
+                <div id="moveHistory" class="move-history"></div>
+            </div>
+        </aside>
+
+        <!-- Center Board -->
+        <main class="board-section">
+            <div class="player-info player-top">
+                <div class="player-avatar">🐍</div>
+                <div class="player-details">
+                    <div class="player-name">King Cobra</div>
+                    <div id="capturedByWhite" class="captured-pieces"></div>
+                </div>
+            </div>
+
+            <div class="board-frame">
+                <svg id="drawingLayer" class="drawing-layer">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" 
+                                refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#eb6150"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <div id="chessboard" class="chessboard"></div>
+            </div>
+
+            <div class="player-info player-bottom">
+                <div class="player-avatar">👤</div>
+                <div class="player-details">
+                    <div class="player-name">You</div>
+                    <div id="capturedByBlack" class="captured-pieces"></div>
+                </div>
+            </div>
+
+            <div class="board-controls">
+                <button id="undoBtn" class="btn btn-control">
+                    <span>↶</span> Undo
+                </button>
+                <button id="hintBtn" class="btn btn-control">
+                    <span>💡</span> Hint
+                </button>
+                <button id="clearDrawBtn" class="btn btn-control">
+                    <span>✕</span> Clear
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Panel -->
+        <aside class="panel-right">
+            <div class="card">
+                <h2>Game Status</h2>
+                <div id="gameStatus" class="status-display">White to move</div>
+                <div class="game-info">
+                    <div class="info-row">
+                        <span>Turn</span>
+                        <span id="turnNumber" class="info-value">1</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Backend</span>
+                        <span id="backendStatus" class="info-value status-checking">Checking...</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Timer</span>
+                        <span id="gameTimer" class="info-value">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Features</h2>
+                <div class="features-list">
+                    <label class="feature-toggle">
+                        <input type="checkbox" id="soundToggle" checked>
+                        <span>🔊 Sound Effects</span>
+                    </label>
+                    <label class="feature-toggle">
+                        <input type="checkbox" id="highlightToggle" checked>
+                        <span>✨ Move Hints</span>
+                    </label>
+                    <label class="feature-toggle">
+                        <input type="checkbox" id="animationToggle" checked>
+                        <span>🎬 Animations</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Move Quality</h2>
+                <div class="legend-list">
+                    <div class="legend-item">
+                        <span class="badge badge-brilliant">!!</span>
+                        <span>Brilliant</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-best">✓</span>
+                        <span>Best Move</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-good">○</span>
+                        <span>Good</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-inaccuracy">?!</span>
+                        <span>Inaccuracy</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-mistake">?</span>
+                        <span>Mistake</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-blunder">??</span>
+                        <span>Blunder</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Help</h2>
+                <div class="help-text">
+                    <p><strong>Click</strong> piece to select</p>
+                    <p><strong>Right-click</strong> to draw circle</p>
+                    <p><strong>Ctrl+Right-click</strong> for arrow</p>
+                    <p><strong>Hint</strong> button shows best move</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="./chess-engine.js"></script>
+</body>
+</html>
